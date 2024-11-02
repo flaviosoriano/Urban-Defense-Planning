@@ -2,16 +2,15 @@
 #define GRAPH_HPP
 
 #include <string>
+#include <vector>
 
 struct node{
     std::string City_name;
-    node *next;
-    node *road;
+    std::vector<node*> roads;
 
     node(std::string name){
         City_name = name;
-        next = nullptr;
-        road = nullptr;
+        roads = std::vector<node*>();
     }
 };
 
@@ -19,13 +18,16 @@ class Graph
 {
 private:
 
-    node *head;
-    node *tail;
+    std::vector<node*> cities;
     int size;
+
+    node *capital;
 
 public:
     Graph(int size);
     ~Graph();
+
+    void addNode(std::string name);
 };
 
 #endif
