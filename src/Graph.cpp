@@ -76,7 +76,6 @@ double Graph::BFS(node& originCity) const{
     return totalDistance;
 }
 
-
 void Graph::defineCapital(){
     double minDist = INF;
     for (auto city : this->cities){
@@ -87,3 +86,29 @@ void Graph::defineCapital(){
         }
     }
 }
+
+void Graph::DFS(node& originCity, std::map<node*,double>* distances) const{
+    
+    distances->insert({&originCity, 0});
+    for(auto citie : this->cities){
+        distances->insert({citie.second, INF});
+    }
+
+    std::stack<std::pair<node*, bool>> stack;
+    stack.push({&originCity, false});
+
+    while(!stack.empty()){
+        std::pair<node*, bool> current = stack.top();
+        stack.pop();
+        if(!current.second){
+            current.second = true;
+            for(auto road : current.first->roads){
+                distances->at(road) = distances->at(current.first) + 1;
+                stack.push({road, false});
+            }
+        }
+    }
+}
+    
+
+

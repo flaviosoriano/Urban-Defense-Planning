@@ -5,12 +5,14 @@
 #include <limits>
 
 #include <string>
+
 #include <vector>
 #include <unordered_map>
 #include <queue>
+#include <stack>
+#include <map>
 
 #define INF std::numeric_limits<double>::infinity()
-
 
 struct node {
     std::string City_name;
@@ -36,14 +38,15 @@ public:
 
     void addRoad(std::string city1, std::string city2);
 
-
     std::unordered_map<std::string, node*> getCities();
     node* getCapital();
-
-    double BFS(node& originCity) const;
     void printGraph() const;
 
+    double BFS(node& originCity) const;
     void defineCapital();
+
+    void DFS(node& originCity, std::map<node*,double>* distances) const;
+    
 };
 
 #endif
