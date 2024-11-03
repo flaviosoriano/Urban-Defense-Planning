@@ -2,7 +2,7 @@
 
 # Compilador e flags
 CC = g++
-CFLAGS = -Wall -Iinclude
+CFLAGS = -Wall -Wextra -Wpedantic -Wformat-security -Wconversion -Werror -Iinclude
 
 # Diretórios
 SRCDIR = src
