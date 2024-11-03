@@ -1,10 +1,18 @@
 #ifndef GRAPH_HPP
 #define GRAPH_HPP
 
+#include <iostream>
+#include <limits>
+
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <queue>
 
-struct node{
+#define INF std::numeric_limits<double>::infinity()
+
+
+struct node {
     std::string City_name;
     std::vector<node*> roads;
 
@@ -14,11 +22,10 @@ struct node{
     }
 };
 
-class Graph
-{
+class Graph {
 private:
 
-    std::vector<node*> cities;
+    std::unordered_map<std::string, node*> cities;
     int size;
 
     node *capital;
@@ -27,7 +34,16 @@ public:
     Graph(int size);
     ~Graph();
 
-    void addNode(std::string name);
+    void addRoad(std::string city1, std::string city2);
+
+
+    std::unordered_map<std::string, node*> getCities();
+    node* getCapital();
+
+    double BFS(node& originCity) const;
+    void printGraph() const;
+
+    void defineCapital();
 };
 
 #endif
