@@ -8,7 +8,7 @@ int main(){
     cin >> n_cities; 
     cin >> n_roads;
 
-    Graph state = Graph(n_cities);
+    Graph state = Graph();
 
     for (int i = 0; i < n_roads; i++){
         string city1, city2;
@@ -16,6 +16,11 @@ int main(){
         cin >> city2;
         state.addRoad(city1, city2);
     }
+    if(n_cities != state.getSize()){
+        cout << "erro" << endl;
+        return 0;
+    }
     state.defineCapital();
     cout << "capital: " <<state.getCapital()->City_name << endl;
+    
 }

@@ -30,25 +30,28 @@ private:
 
     std::unordered_map<std::string, node*> cities;
     int size;
+    std::vector<Graph*> sccs;
 
     node *capital;
 
 public:
-    Graph(int size);
+    Graph();
     ~Graph();
 
     void addRoad(std::string city1, std::string city2);
 
     std::unordered_map<std::string, node*> getCities();
     node* getCapital();
+    int getSize() const;
     void printGraph() const;
 
     int BFS(node& originCity) const;
     void defineCapital();
 
-    void DFS(node& originCity, std::map<node*,int>* distances) const;
-    void Kusaraju_DFS(std::multimap<int, node*>* distances, std::multimap<int, node*>* scc) const;
-    void Kusaraju(std::multimap<int, node*>* scc) const;
+    void DFS(node* city, std::unordered_map<node*, bool> visited, std::stack<node*> stack) const;
+    void Kosaraju_DFS(node* city, node* originCity, std::unordered_map<node*, bool> visited, Graph* component) const;
+    void Kosaraju();
+    void DefineBatalhoes() ;
 };
 
 #endif
