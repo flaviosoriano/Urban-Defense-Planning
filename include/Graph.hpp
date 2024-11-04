@@ -11,6 +11,7 @@
 #include <queue>
 #include <stack>
 #include <map>
+#include <set>
 
 #define INF std::numeric_limits<double>::infinity()
 
@@ -42,11 +43,12 @@ public:
     node* getCapital();
     void printGraph() const;
 
-    double BFS(node& originCity) const;
+    int BFS(node& originCity) const;
     void defineCapital();
 
-    void DFS(node& originCity, std::map<node*,double>* distances) const;
-    
+    void DFS(node& originCity, std::map<node*,int>* distances) const;
+    void Kusaraju_DFS(std::multimap<int, node*>* distances, std::multimap<int, node*>* scc) const;
+    void Kusaraju(std::multimap<int, node*>* scc) const;
 };
 
 #endif

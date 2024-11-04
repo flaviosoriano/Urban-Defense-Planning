@@ -45,9 +45,9 @@ void Graph::printGraph() const{
     }
 }
 
-double Graph::BFS(node& originCity) const{
+int Graph::BFS(node& originCity) const{
 
-    std::unordered_map<node*,double> distances;
+    std::unordered_map<node*,int> distances;
     distances.insert({&originCity, 0});
     for(auto citie : this->cities){
         distances.insert({citie.second, INF});
@@ -68,7 +68,7 @@ double Graph::BFS(node& originCity) const{
         }
     }
 
-    double totalDistance = 0;
+    int totalDistance = 0;
     for(auto distance : distances){
         totalDistance += distance.second;
     }
@@ -87,7 +87,7 @@ void Graph::defineCapital(){
     }
 }
 
-void Graph::DFS(node& originCity, std::map<node*,double>* distances) const{
+void Graph::DFS(node& originCity, std::map<node*, int>* distances) const{
     
     distances->insert({&originCity, 0});
     for(auto citie : this->cities){
@@ -108,6 +108,58 @@ void Graph::DFS(node& originCity, std::map<node*,double>* distances) const{
             }
         }
     }
+}
+
+void Graph::Kusaraju_DFS(std::multimap<int, node*>* distances, std::multimap<int, node*>* scc) const{
+    
+    // nó, visitado, conectado com o ultimo no da pilha
+    std::stack<std::tuple<node*, bool, bool>> stack;
+
+    for(auto distance : *distances){
+        stack.push({distance.second, false, false});
+    }
+
+    int nComponent = -1;
+    while(!stack.empty()){
+        // nó, visitado, conectado com o ultimo no da pilha
+        std::tuple<node*, bool , bool> current = stack.top();
+        stack.pop();
+ 
+        if(!std::get<1>(current)){
+
+            std::get<1>(current) = true;
+            for(auto road : std::get<0>(current)->roads){
+                stack.push({road, false, true});
+            }
+            // caso o nó não esteja conectado com o ultimo nó da pilha
+            // ele é um novo componente
+            if(!std::get<2>(current)){
+                nComponent++;
+            }
+            scc->insert({nComponent, std::get<0>(current)});
+        }
+    }
+}
+
+void Graph::Kusaraju(std::multimap<int, node*>* scc) const{
+
+    std::map<node*, int> distances;
+    DFS(*this->capital, &distances);
+
+
+    Graph transposedGraph = Graph(this->size);
+    for(auto city : this->cities){
+        for(auto road : city.second->roads){
+            transposedGraph.addRoad(road->City_name, city.first);
+        }
+    }
+    // Cria um multimap para armazenar ordenadamente as distâncias que servirão 
+    // como lista para o proximo DFS
+    std::multimap<int, node*> ordenedDistances;
+    for(auto distance : distances){
+        ordenedDistances.insert({distance.second, distance.first});
+    }
+    transposedGraph.Kusaraju_DFS(&ordenedDistances, scc);
 }
     
 
