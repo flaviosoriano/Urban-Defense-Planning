@@ -3,6 +3,7 @@
 # Compilador e flags
 CC = g++
 CFLAGS = -Wall -Wextra -Wpedantic -Wformat-security -Wconversion -Werror -Iinclude
+DEBUGFLAGS = -g
 
 # Diretórios
 SRCDIR = src
@@ -28,8 +29,12 @@ $(BINDIR)/$(EXEC): $(OBJ) | $(BINDIR)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp | $(BUILDDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# Compilação em modo de depuração
+debug: CFLAGS += $(DEBUGFLAGS)
+debug: clean all
+
 # Limpa arquivos objetos e binários
 clean:
 	rm -rf $(BUILDDIR)/*.o $(BINDIR)/$(EXEC)
 
-.PHONY: all clean
+.PHONY: all clean debug
