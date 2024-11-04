@@ -177,11 +177,17 @@ void Graph::Kosaraju() {
 void Graph::DefineBatalhoes() {
     this->Kosaraju();
     auto n_batalhoes = sccs.size();
-    std::cout << n_batalhoes << std::endl;
     for(auto batalhao : sccs){
         batalhao->defineCapital();
-        std::cout << batalhao->getCapital()->City_name << std::endl;
-        batalhao->printGraph();
+        if(batalhao->getCapital() == this->capital){
+            n_batalhoes--;
+        }
+    }
+    std::cout << n_batalhoes << std::endl;
+    for(auto batalhao : sccs){
+        if(batalhao->getCapital() != this->capital){
+            std::cout << batalhao->getCapital()->City_name << std::endl;
+        }
     }
 }
 
