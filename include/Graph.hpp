@@ -13,7 +13,7 @@
 #include <map>
 #include <set>
 
-#define INF std::numeric_limits<double>::infinity()
+#define INF std::numeric_limits<int>::max()
 
 struct node {
     std::string City_name;
@@ -39,6 +39,7 @@ public:
     ~Graph();
 
     void addRoad(std::string city1, std::string city2);
+    void addCity(std::string city);
 
     std::unordered_map<std::string, node*> getCities();
     node* getCapital();
@@ -48,8 +49,8 @@ public:
     int BFS(node& originCity) const;
     void defineCapital();
 
-    void DFS(node* city, std::unordered_map<node*, bool> visited, std::stack<node*> stack) const;
-    void Kosaraju_DFS(node* city, node* originCity, std::unordered_map<node*, bool> visited, Graph* component) const;
+    void DFS(node* city, std::unordered_map<node*, bool>* visited, std::stack<node*>* stack) const;
+    void Kosaraju_DFS(node* city, std::unordered_map<node*, bool>* visited, Graph* component) const;
     void Kosaraju();
     void DefineBatalhoes() ;
 };

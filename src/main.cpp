@@ -4,6 +4,10 @@
 using namespace std;
 
 int main(){
+
+    //apeans para depuração
+    freopen("inputs/testCase03.txt", "r", stdin);
+
     int n_cities, n_roads;
     cin >> n_cities; 
     cin >> n_roads;
@@ -20,7 +24,9 @@ int main(){
         cout << "erro" << endl;
         return 0;
     }
+    state.printGraph();
     state.defineCapital();
     cout << "capital: " <<state.getCapital()->City_name << endl;
-    
+    state.DefineBatalhoes();
+    return 0;
 }

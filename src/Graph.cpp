@@ -5,15 +5,13 @@ Graph::Graph() {
     this->capital = nullptr;
 }
 
-Graph::~Graph(){
-    for (auto city : this->cities){
-        for(auto road : city.second->roads){
-            delete road;
-        }
-        city.second->roads.clear();
+Graph::~Graph() {
+    for(auto city : this->cities){
         delete city.second;
     }
-    cities.clear();
+    for(auto batalhao : this->sccs){
+        delete batalhao;
+    }
 }
 
 void Graph::addRoad(std::string city1, std::string city2){
@@ -28,6 +26,13 @@ void Graph::addRoad(std::string city1, std::string city2){
         this->size++;
     }
     this->cities[city1]->roads.push_back(this->cities[city2]);
+}
+
+void Graph::addCity(std::string city){
+    if (this->cities.find(city) == this->cities.end()){
+        this->cities[city] = new node(city);
+        this->size++;
+    }
 }
 
 std::unordered_map<std::string, node*> Graph::getCities() {
@@ -77,6 +82,9 @@ int Graph::BFS(node& originCity) const{
 
     int totalDistance = 0;
     for(auto distance : distances){
+        if (distance.second == INF){
+            return INF;
+        }
         totalDistance += distance.second;
     }
 
@@ -100,29 +108,27 @@ void Graph::defineCapital(){
 * @param visited mapa de cidades visitadas
 * @param stack pilha de cidades visitadas que será usada no algoritmo de Kosaraju 
 */
-void Graph::DFS(node* city, std::unordered_map<node*, bool> visited, std::stack<node*> stack) const{
+void Graph::DFS(node* city, std::unordered_map<node*, bool>* visited, std::stack<node*>* stack) const{
     //Marca a cidade como visitada, mas nao adiciona a pilha (semelhante a "pintar de cinza", como visto nas aulas)
-    visited[city] = true;
+    visited->at(city) = true;
     //Para cada cidade vizinha, se ela nao foi visitada, chama a DFS recursivamente
     for(auto road : city->roads){
-        if(visited[road] == false){
+        if(visited->at(road) == false){
             DFS(road, visited, stack);
         }
     }
     //Adiciona a cidade a pilha (semelhante a "pintar de preto")
-    stack.push(city);
+    stack->push(city);
 }
 
-void Graph::Kosaraju_DFS(node* city, node* originCity, std::unordered_map<node*, bool> visited, Graph* component) const{
-    visited[city] = true;
-    //caso haja uma cidade de origem
-    if(originCity != nullptr){
-    //adiciona a aresta ao componente, de forma invertida, visto que o grafo é transposto
-    component->addRoad(city->City_name, originCity->City_name);
-    }
+void Graph::Kosaraju_DFS(node* city, std::unordered_map<node*, bool>* visited, Graph* component) const{
+    visited->at(city) = true;
+    component->addCity(city->City_name);
+
     for(auto road : city->roads){
-        if(visited[road] == false){
-            Kosaraju_DFS(road, city, visited, component);
+        component->addRoad(city->City_name, road->City_name);
+        if(visited->at(road) == false){
+            Kosaraju_DFS(road, visited, component);
         }
     }
 }
@@ -133,31 +139,33 @@ void Graph::Kosaraju() {
     std::stack<node*> stack;
 
     for(auto city : this->cities){
-        visited[city.second] = false;
+        visited.insert({city.second, false});
     }
     //Primeira etapa
     for(auto city : this->cities){
-        if(visited[city.second] == false){
-            DFS(city.second, visited, stack);
+        if(visited.at(city.second) == false){
+            DFS(city.second, &visited, &stack);
         }
     }
     //Segunda etapa
-    Graph transposedGraph = Graph();
+    Graph transposedGraph;
     for(auto city : this->cities){
+        transposedGraph.addCity(city.first);
         for(auto road : city.second->roads){
             transposedGraph.addRoad(road->City_name, city.first);
         }
     }
+    visited.clear();
     //Terceira etapa
-    for(auto city : this->cities){
-        visited[city.second] = false;
+    for(auto city : transposedGraph.cities){
+        visited.insert({city.second, false});
     }
     while(!stack.empty()){
-        node* current = stack.top();
+        node* current = transposedGraph.cities[stack.top()->City_name];
         stack.pop();
-        if(!visited[current]){
+        if(!visited.at(current)){
             Graph* component = new Graph();
-            transposedGraph.Kosaraju_DFS(current, nullptr, visited, component);
+            transposedGraph.Kosaraju_DFS(current, &visited, component);
             int size = component->getSize();
             if(size >= 1){
                 this->sccs.push_back(component);
@@ -173,8 +181,8 @@ void Graph::DefineBatalhoes() {
     for(auto batalhao : sccs){
         batalhao->defineCapital();
         std::cout << batalhao->getCapital()->City_name << std::endl;
+        batalhao->printGraph();
     }
-
 }
 
 
