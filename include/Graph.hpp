@@ -46,9 +46,9 @@ public:
     int getSize() const;
     void printGraph() const;
 
-    int BFS(node& originCity) const;
+    std::unordered_map<node*,int> BFS(node& originCity) const;
     void defineCapital();
-    void BatalhaoPrincipal(node& stateCapital);
+    std::vector<std::string> MaisProxCapital();
 
     void DFS(node* city, std::unordered_map<node*, bool>* visited, std::stack<node*>* stack) const;
     void Kosaraju_DFS(node* city, std::unordered_map<node*, bool>* visited, Graph* component) const;

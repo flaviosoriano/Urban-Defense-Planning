@@ -57,7 +57,7 @@ void Graph::printGraph() const{
     }
 }
 
-int Graph::BFS(node& originCity) const{
+std::unordered_map<node*,int> Graph::BFS(node& originCity) const{
 
     std::unordered_map<node*,int> distances;
     distances.insert({&originCity, 0});
@@ -80,6 +80,10 @@ int Graph::BFS(node& originCity) const{
         }
     }
 
+    return distances;
+}
+
+int SomarDistancias(std::unordered_map<node*,int> distances){
     int totalDistance = 0;
     for(auto distance : distances){
         if (distance.second == INF){
@@ -92,9 +96,9 @@ int Graph::BFS(node& originCity) const{
 }
 
 void Graph::defineCapital(){
-    double minDist = INF;
+    int minDist = INF;
     for (auto city : this->cities){
-        double dist = this->BFS(*city.second);
+        int dist = SomarDistancias(this->BFS(*city.second));
         if (dist < minDist){
             minDist = dist;
             this->capital = city.second;
@@ -102,9 +106,12 @@ void Graph::defineCapital(){
     }
 }
 
-void Graph::BatalhaoPrincipal(node& stateCapital){
+/*
+std::vector<std::string> Graph::MaisProxCapital(){
+    std::vector<std::string> cities;
     
 }
+*/
 
 /*
 * Faz uma DFS a partir da cidade indicada, marcando as cidades visitadas e adicionando a pilha
@@ -130,8 +137,8 @@ void Graph::Kosaraju_DFS(node* city, std::unordered_map<node*, bool>* visited, G
     component->addCity(city->City_name);
 
     for(auto road : city->roads){
-        component->addRoad(city->City_name, road->City_name);
         if(visited->at(road) == false){
+            component->addRoad(city->City_name, road->City_name);
             Kosaraju_DFS(road, visited, component);
         }
     }
@@ -178,18 +185,36 @@ void Graph::Kosaraju() {
     }
 }
 
+node* MaisProximo(std::unordered_map<node*, int> distances, std::unordered_map<std::string, node*> cities){
+    node* maisProximo = nullptr;
+    int minDist = INF;
+    for(auto distance : distances){
+        //garante que a cidade é uma cidade do batalhão
+        if(distance.second < minDist && cities.find(distance.first->City_name) != cities.end()){
+            minDist = distance.second;
+            maisProximo = distance.first;
+        }
+    }
+    return maisProximo;
+}
+
 void Graph::DefineBatalhoes() {
 
     this->Kosaraju();
 
     auto n_batalhoes = sccs.size();
+    std::cout << "batalhoes size: " << n_batalhoes << std::endl;
+    std::unordered_map<node*, int> distanciasCapital = this->BFS(*this->capital);
     for(auto batalhao : sccs){
-        batalhao->defineCapital();
+        //define o batalhão como a cidade do scc mais próxima da capital
+        batalhao->capital = MaisProximo(distanciasCapital, batalhao->cities);
+        std::cout << "batalhao capital: " << batalhao->capital->City_name << std::endl;
+        //se o batalhão for a capital, não conta como batalhão
         if(batalhao->getCapital()->City_name == this->capital->City_name){
+
             n_batalhoes--;
         }
     }
-
 
     //impressão da resposta
     std::cout << n_batalhoes << std::endl;
