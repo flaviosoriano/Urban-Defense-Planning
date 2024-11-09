@@ -102,6 +102,10 @@ void Graph::defineCapital(){
     }
 }
 
+void Graph::BatalhaoPrincipal(node& stateCapital){
+    
+}
+
 /*
 * Faz uma DFS a partir da cidade indicada, marcando as cidades visitadas e adicionando a pilha
 * @param city cidade de origem
@@ -175,17 +179,22 @@ void Graph::Kosaraju() {
 }
 
 void Graph::DefineBatalhoes() {
+
     this->Kosaraju();
+
     auto n_batalhoes = sccs.size();
     for(auto batalhao : sccs){
         batalhao->defineCapital();
-        if(batalhao->getCapital() == this->capital){
+        if(batalhao->getCapital()->City_name == this->capital->City_name){
             n_batalhoes--;
         }
     }
+
+
+    //impressão da resposta
     std::cout << n_batalhoes << std::endl;
     for(auto batalhao : sccs){
-        if(batalhao->getCapital() != this->capital){
+        if(batalhao->getCapital()->City_name != this->capital->City_name){
             std::cout << batalhao->getCapital()->City_name << std::endl;
         }
     }

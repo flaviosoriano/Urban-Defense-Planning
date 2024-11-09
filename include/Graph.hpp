@@ -48,6 +48,7 @@ public:
 
     int BFS(node& originCity) const;
     void defineCapital();
+    void BatalhaoPrincipal(node& stateCapital);
 
     void DFS(node* city, std::unordered_map<node*, bool>* visited, std::stack<node*>* stack) const;
     void Kosaraju_DFS(node* city, std::unordered_map<node*, bool>* visited, Graph* component) const;
