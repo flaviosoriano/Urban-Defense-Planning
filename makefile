@@ -8,7 +8,6 @@ DEBUGFLAGS = -g
 # Diretórios
 SRCDIR = src
 BUILDDIR = obj
-BINDIR = bin
 INCDIR = include
 
 # Arquivo executável
@@ -19,10 +18,10 @@ SRC = $(wildcard $(SRCDIR)/*.cpp)
 OBJ = $(SRC:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.o)
 
 # Regra padrão
-all: $(BINDIR)/$(EXEC)
+all: $(EXEC)
 
 # Cria o executável
-$(BINDIR)/$(EXEC): $(OBJ) | $(BINDIR)
+$(EXEC): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $@
 
 # Compila arquivos .cpp
