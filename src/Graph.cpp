@@ -245,9 +245,15 @@ std::vector<Node*> MaisProximo(std::unordered_map<Node*, int> distances, std::un
     int minDist = INF;
     for(auto distance : distances){
         //garante que a cidade é uma cidade do batalhão
-        if(distance.second <= minDist && cities.find(distance.first->City_name) != cities.end()){
-            minDist = distance.second;
-            maisProximo.push_back(cities[distance.first->City_name]);
+        if(cities.find(distance.first->City_name) != cities.end()){
+            //se a distancia for menor que a menor distancia encontrada até o momento, atualiza a menor distancia e reseta o vetor de cidades mais próximas
+            if(distance.second < minDist){
+                minDist = distance.second;
+                maisProximo.clear();
+                maisProximo.push_back(distance.first);
+            } else if(distance.second == minDist){
+                maisProximo.push_back(distance.first);
+            }
         }
     }
     //retorna as cidades mais próximas da capital(caso haja mais de uma com a menor distancia encontrada)
@@ -271,19 +277,20 @@ void Graph::DefineBatalhoes() {
                 int dist = SomarDistancias(batalhao->BFS(*city));
                 if (dist < minDist){
                     minDist = dist;
-                    this->capital = city;
+                    batalhao->SetCapital(city);
                 }
             }
-        } else{
+        } else {
             batalhao->SetCapital(capitalCandidates[0]);
         }
+        batalhao->printGraph();
+        std::cout << "capital: " << batalhao->getCapital()->City_name << std::endl;
             
         //se o batalhão for a capital, não conta como batalhão
         if(batalhao->getCapital()->City_name == this->capital->City_name){
             n_batalhoes--;
         }
     }
-
     //impressão da resposta
     std::cout << n_batalhoes << std::endl;
     for(auto batalhao : sccs){
