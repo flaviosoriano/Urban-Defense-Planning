@@ -64,6 +64,7 @@ public:
     void addRoad(std::string city1, std::string city2);
     void addCity(std::string city);
     void copyCity(Node* city);
+    void SetCapital(Node* capital);
 
     std::unordered_map<std::string, Node*> getCities();
     Node* getCapital();
@@ -76,7 +77,8 @@ public:
     void DFS(Node* city, std::unordered_map<Node*, bool>* visited, std::stack<Node*>* stack) const;
     void Kosaraju_DFS(Node* city, std::unordered_map<Node*, bool>* visited, std::unordered_set<std::string>* component) const;
     void Kosaraju();
-    void DefineBatalhoes() ;
+    void DesempateBatalhao(std::vector<Node*> &capitalCandidates);
+    void DefineBatalhoes();
 
     int CountSCCs();
     std::stack<Node*> BFSPath(Node& originCity, Node&destinationCity) const;

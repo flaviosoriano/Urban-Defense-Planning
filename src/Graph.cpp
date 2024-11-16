@@ -45,6 +45,10 @@ void Graph::copyCity(Node* city){
     }
 }
 
+void Graph::SetCapital(Node* capital){
+    this->capital = capital;
+}
+
 
 std::unordered_map<std::string, Node*> Graph::getCities() {
     return this->cities;
@@ -153,14 +157,6 @@ void Graph::defineCapital(){
         }
     }
 }
-
-/*
-std::vector<std::string> Graph::MaisProxCapital(){
-    std::vector<std::string> cities;
-    
-}
-*/
-
 /*
 * Faz uma DFS a partir da cidade indicada, marcando as cidades visitadas e adicionando a pilha
 * @param city cidade de origem
@@ -244,18 +240,20 @@ void Graph::Kosaraju() {
     }
 }
 
-Node* MaisProximo(std::unordered_map<Node*, int> distances, std::unordered_map<std::string, Node*> cities){
-    Node* maisProximo = nullptr;
+std::vector<Node*> MaisProximo(std::unordered_map<Node*, int> distances, std::unordered_map<std::string, Node*> cities){
+    std::vector<Node*> maisProximo;
     int minDist = INF;
     for(auto distance : distances){
         //garante que a cidade é uma cidade do batalhão
-        if(distance.second < minDist && cities.find(distance.first->City_name) != cities.end()){
+        if(distance.second <= minDist && cities.find(distance.first->City_name) != cities.end()){
             minDist = distance.second;
-            maisProximo = cities[distance.first->City_name];
+            maisProximo.push_back(cities[distance.first->City_name]);
         }
     }
+    //retorna as cidades mais próximas da capital(caso haja mais de uma com a menor distancia encontrada)
     return maisProximo;
 }
+
 
 void Graph::DefineBatalhoes() {
 
@@ -265,7 +263,21 @@ void Graph::DefineBatalhoes() {
     std::unordered_map<Node*, int> distanciasCapital = this->BFS(*this->capital);
     for(auto batalhao : sccs){
         //define o batalhão como a cidade do scc mais próxima da capital
-        batalhao->capital = MaisProximo(distanciasCapital, batalhao->cities);
+        std::vector<Node*> capitalCandidates = MaisProximo(distanciasCapital, batalhao->cities);
+        //se houver mais de uma cidade com a mesma distancia, desempata baseado na soma das distancias para o
+        if(capitalCandidates.size() > 1){
+            int minDist = INF;
+            for (auto city : capitalCandidates){
+                int dist = SomarDistancias(batalhao->BFS(*city));
+                if (dist < minDist){
+                    minDist = dist;
+                    this->capital = city;
+                }
+            }
+        } else{
+            batalhao->SetCapital(capitalCandidates[0]);
+        }
+            
         //se o batalhão for a capital, não conta como batalhão
         if(batalhao->getCapital()->City_name == this->capital->City_name){
             n_batalhoes--;
@@ -428,13 +440,8 @@ void Graph::Patrulhamentos(){
                     visited.insert({road, false});
                 }
             }
-            std::cout << std::endl;
-            batalhao->printGraph();
             batalhao->Balancear();
-            batalhao->printGraph();
             batalhao->PasseioDeEuler(batalhao->getCapital());
-            std::cout << std::endl;
-            
             std::cout << std::endl;
         }
     }
