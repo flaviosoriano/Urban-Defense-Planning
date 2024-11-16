@@ -5,8 +5,8 @@ using namespace std;
 
 int main(){
 
-    //apeans para depuração
-    //freopen("testCase05.txt", "r", stdin);
+    //apenas para depuração
+    //freopen("inputs/testCase05.txt", "r", stdin);
 
     int n_cities = 0 , n_roads = 0;
     cin >> n_cities; 

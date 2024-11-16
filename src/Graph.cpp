@@ -94,6 +94,43 @@ std::unordered_map<Node*,int> Graph::BFS(Node& originCity) const{
     return distances;
 }
 
+std::stack<Node*> Graph::BFSPath(Node& originCity, Node& destinationCity) const{
+
+    //Cidade atual - cidade anterior
+    std::unordered_map<Node*,Node*> path;
+    path.insert({&originCity, nullptr});
+    for(auto citie : this->cities){
+        path.insert({citie.second, nullptr});
+    }
+
+    std::queue<Node*> queue;
+    queue.push(&originCity);
+
+    while(!queue.empty()){
+        Node *current = queue.front();
+        queue.pop();
+
+        if(current == &destinationCity){
+            break;
+        }
+
+        for(auto road : current->roads){
+            if(path[road->city2] == nullptr && road->city2 != &originCity){
+                path[road->city2] = current;
+                queue.push(road->city2);
+            }
+        }
+    }
+    //Construção do caminho
+    std::stack<Node*> finalPath;
+    Node* current = &destinationCity;
+    while(current != nullptr){
+        finalPath.push(current);
+        current = path[current];
+    }
+    return finalPath;
+}
+
 int SomarDistancias(std::unordered_map<Node*,int> distances){
     int totalDistance = 0;
     for(auto distance : distances){
@@ -255,6 +292,101 @@ int Graph::CountSCCs(){
     return count;
 }
 
+
+void Graph::Balancear(){
+    //será utilizado depois, mas ja inicializo agora para aproveitar o loop
+    //assinala aos nós um indice inteiro
+    std::unordered_map<Node*, int> desbalanceadosID;
+    int indice = 0;
+
+    // Encontra quais os nos desbalanceados O(v)
+    std::vector<Node*> desbalanceados;
+    for(auto city : this->cities){
+        if(city.second->InDegree != city.second->OutDegree){
+            desbalanceados.push_back(city.second);
+            desbalanceadosID.insert({city.second, indice});
+            indice++;
+        }
+    }
+
+    // Define todos os pares possíveis de nós desbalanceados O(V²)
+    std::vector<std::tuple<Node*, Node*, int>> paresDesbalanceados; //guarda também a distancia entre eles
+    for(int i = 0; i < (int)desbalanceados.size(); i++){
+        std::unordered_map<Node*, int> distances = this->BFS(*desbalanceados[i]);
+        int firstDegree = desbalanceados[i]->InDegree - desbalanceados[i]->OutDegree;
+        //So faz o par se é necessária uma aresta do primeiro para o segundo
+        for(int j = 0; j < (int)desbalanceados.size(); j++){
+            int secondDegree = desbalanceados[j]->InDegree - desbalanceados[j]->OutDegree;
+            if(i != j && (firstDegree > 0 && secondDegree < 0)){
+            paresDesbalanceados.push_back({desbalanceados[i], desbalanceados[j], distances[desbalanceados[j]]});
+            }
+        }
+    }
+
+    // Cria conjuntos de pares que contemplam todos os nós desbalanceados O(V²)
+    std::set<std::vector<std::tuple<Node*, Node*, int>>> conjuntos;
+    std::vector<int> added (desbalanceados.size(), 0);
+    for(auto parAtual : paresDesbalanceados){
+        std::vector<std::tuple<Node*, Node*, int>> conjuntoAtual;
+        added.assign(desbalanceados.size(), 0);
+        conjuntoAtual.push_back(parAtual);
+        added[desbalanceadosID[std::get<0>(parAtual)]] = 1;
+        added[desbalanceadosID[std::get<1>(parAtual)]] = 1;
+
+        for(auto parIterado : paresDesbalanceados){
+            int firstID = desbalanceadosID[std::get<0>(parIterado)];
+            int secondID = desbalanceadosID[std::get<1>(parIterado)];
+
+            if(!added[firstID] && !added[secondID]){
+                conjuntoAtual.push_back(parIterado);
+                added[firstID] = 1;
+                added[secondID] = 1;
+            }
+            if(conjuntoAtual.size() == desbalanceados.size()/2){
+                break;
+            }
+        }
+        
+        conjuntos.insert(conjuntoAtual);
+        
+    }
+
+    //imprime os conjuntos
+    for(auto conjunto : conjuntos){
+        for(auto par : conjunto){
+            std::cout << std::get<0>(par)->City_name << " " << std::get<1>(par)->City_name << " " << std::get<2>(par) << std::endl;
+        }
+        std::cout << std::endl;
+    }
+
+    // Escolhe o conjunto com menor distancia total O(V²)
+    std::vector<std::tuple<Node*, Node*, int>> menorConjunto;
+    int menorDistancia = INF;
+    for(auto conjunto : conjuntos){
+        int distanciaAtual = 0;
+        for(auto par : conjunto){
+            distanciaAtual += std::get<2>(par);
+        }
+        if(distanciaAtual < menorDistancia){
+            menorDistancia = distanciaAtual;
+            menorConjunto = conjunto;
+        }
+    }
+
+    // Adiciona as arestas ao grafo O(V)
+    for(auto par : menorConjunto){
+        std::stack path = this->BFSPath(*std::get<0>(par), *std::get<1>(par));
+        Node* current = path.top();
+        path.pop();
+        while(!path.empty()){
+            Node* next = path.top();
+            path.pop();
+            this->addRoad(current->City_name, next->City_name);
+            current = next;
+        }
+    }
+}
+
 void Reverse(std::vector<Node*> &vector){
     std::vector<Node*> reversed;
     for(auto it = vector.rbegin(); it != vector.rend(); it++){
@@ -262,29 +394,6 @@ void Reverse(std::vector<Node*> &vector){
     }
     vector = reversed;
 }
-
-void Graph::Balancear(){
-    std::deque<Node*> unbalancedNodesExcess;
-    std::deque<Node*> unbalancedNodesLack;
-
-    for(auto city : this->cities){
-        int balance = city.second->InDegree - city.second->OutDegree;
-        if(balance > 0){
-            while(balance--) unbalancedNodesExcess.push_back(city.second);
-        }else if(balance < 0){
-            while(balance++) unbalancedNodesLack.push_back(city.second);
-        }
-    }
-
-    while(!unbalancedNodesExcess.empty() && !unbalancedNodesLack.empty()){
-        Node* excess = unbalancedNodesExcess.front();
-        Node* lack = unbalancedNodesLack.front();
-        unbalancedNodesExcess.pop_front();
-        unbalancedNodesLack.pop_front();
-        addRoad(excess->City_name, lack->City_name);
-    }
-}
-
 void Graph::PasseioDeEuler(Node* inicio){
     std::vector<Node*> eulerianPath;
     std::stack<Node*> stack;
@@ -319,10 +428,12 @@ void Graph::Patrulhamentos(){
                     visited.insert({road, false});
                 }
             }
+            std::cout << std::endl;
             batalhao->printGraph();
             batalhao->Balancear();
             batalhao->printGraph();
             batalhao->PasseioDeEuler(batalhao->getCapital());
+            std::cout << std::endl;
             
             std::cout << std::endl;
         }

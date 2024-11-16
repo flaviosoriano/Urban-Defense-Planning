@@ -12,6 +12,7 @@
 #include <stack>
 #include <map>
 #include <unordered_set>
+#include <set>
 
 #define INF std::numeric_limits<int>::max()
 
@@ -78,6 +79,7 @@ public:
     void DefineBatalhoes() ;
 
     int CountSCCs();
+    std::stack<Node*> BFSPath(Node& originCity, Node&destinationCity) const;
     void Balancear();
     void PasseioDeEuler(Node* inicio);
     void Patrulhamentos();
