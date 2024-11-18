@@ -11,7 +11,7 @@ BUILDDIR = obj
 INCDIR = include
 
 # Arquivo executável
-EXEC = tp2.out
+EXEC = tp1.out
 
 # Busca todos os arquivos .cpp no diretório src
 SRC = $(wildcard $(SRCDIR)/*.cpp)

@@ -1,47 +1,47 @@
 #include "Graph.hpp"
 
 Graph::Graph() {
-    this->size = 0;
+    this->tamanho = 0;
     this->capital = nullptr;
 }
 
 Graph::~Graph() {
-    for(auto city : this->cities){
-        delete city.second;
+    for(auto Cidade : this->cidades){
+        delete Cidade.second;
     }
     for(auto batalhao : this->sccs){
         delete batalhao;
     }
 }
 
-void Graph::addRoad(std::string city1, std::string city2){
+void Graph::addEstrada(std::string Cidade1, std::string cidade2){
     //garante que a cidade está no grafo
-    if (this->cities.find(city1) == this->cities.end()){
-        this->cities[city1] = new Node(city1);
-        this->size++;
+    if (this->cidades.find(Cidade1) == this->cidades.end()){
+        this->cidades[Cidade1] = new Node(Cidade1);
+        this->tamanho++;
     }
     //garante que a cidade está no grafo
-    if (this->cities.find(city2) == this->cities.end()){
-        this->cities[city2] = new Node(city2);
-        this->size++;
+    if (this->cidades.find(cidade2) == this->cidades.end()){
+        this->cidades[cidade2] = new Node(cidade2);
+        this->tamanho++;
     }
-    this->cities[city1]->roads.push_back(new Road(this->cities[city1], this->cities[city2]));
+    this->cidades[Cidade1]->estradas.push_back(new Estrada(this->cidades[Cidade1], this->cidades[cidade2]));
 
-    this->cities[city2]->InDegree++;
-    this->cities[city1]->OutDegree++;
+    this->cidades[cidade2]->InDegree++;
+    this->cidades[Cidade1]->OutDegree++;
 }
 
-void Graph::addCity(std::string city){
-    if (this->cities.find(city) == this->cities.end()){
-        this->cities[city] = new Node(city);
-        this->size++;
+void Graph::addCidade(std::string Cidade){
+    if (this->cidades.find(Cidade) == this->cidades.end()){
+        this->cidades[Cidade] = new Node(Cidade);
+        this->tamanho++;
     }
 }
 
-void Graph::copyCity(Node* city){
-    if (this->cities.find(city->City_name) == this->cities.end()){
-        this->cities[city->City_name] = new Node(city);
-        this->size++;
+void Graph::copyCidade(Node* Cidade){
+    if (this->cidades.find(Cidade->nome_Cidade) == this->cidades.end()){
+        this->cidades[Cidade->nome_Cidade] = new Node(Cidade);
+        this->tamanho++;
     }
 }
 
@@ -50,47 +50,47 @@ void Graph::SetCapital(Node* capital){
 }
 
 
-std::unordered_map<std::string, Node*> Graph::getCities() {
-    return this->cities;
+std::unordered_map<std::string, Node*> Graph::getcidades() {
+    return this->cidades;
 }
 
 Node* Graph::getCapital() {
     return this->capital;
 }
 
-int Graph::getSize() const{
-    return this->size;
+int Graph::getTamanho() const{
+    return this->tamanho;
 }
 
 void Graph::printGraph() const{
-    for (auto city : this->cities){
-        std::cout << city.first << " -> ";
-        for (auto road : city.second->roads){
-            std::cout << road->city2->City_name << " ";
+    for (auto Cidade : this->cidades){
+        std::cout << Cidade.first << " -> ";
+        for (auto Estrada : Cidade.second->estradas){
+            std::cout << Estrada->cidade2->nome_Cidade << " ";
         }
         std::cout << std::endl;
     }
 }
 
-std::unordered_map<Node*,int> Graph::BFS(Node& originCity) const{
+std::unordered_map<Node*,int> Graph::BFS(Node& originCidade) const{
 
     std::unordered_map<Node*,int> distances;
-    distances.insert({&originCity, 0});
-    for(auto citie : this->cities){
+    distances.insert({&originCidade, 0});
+    for(auto citie : this->cidades){
         distances.insert({citie.second, INF});
     }
 
     std::queue<Node*> queue;
-    queue.push(&originCity);
+    queue.push(&originCidade);
 
     while(!queue.empty()){
         Node *current = queue.front();
         queue.pop();
 
-        for(auto road : current->roads){
-            if(distances[road->city2] == INF){
-                distances[road->city2] = distances[current] + 1;
-                queue.push(road->city2);
+        for(auto Estrada : current->estradas){
+            if(distances[Estrada->cidade2] == INF){
+                distances[Estrada->cidade2] = distances[current] + 1;
+                queue.push(Estrada->cidade2);
             }
         }
     }
@@ -98,36 +98,36 @@ std::unordered_map<Node*,int> Graph::BFS(Node& originCity) const{
     return distances;
 }
 
-std::stack<Node*> Graph::BFSPath(Node& originCity, Node& destinationCity) const{
+std::stack<Node*> Graph::BFSPath(Node& originCidade, Node& destinationCidade) const{
 
     //Cidade atual - cidade anterior
     std::unordered_map<Node*,Node*> path;
-    path.insert({&originCity, nullptr});
-    for(auto citie : this->cities){
+    path.insert({&originCidade, nullptr});
+    for(auto citie : this->cidades){
         path.insert({citie.second, nullptr});
     }
 
     std::queue<Node*> queue;
-    queue.push(&originCity);
+    queue.push(&originCidade);
 
     while(!queue.empty()){
         Node *current = queue.front();
         queue.pop();
 
-        if(current == &destinationCity){
+        if(current == &destinationCidade){
             break;
         }
 
-        for(auto road : current->roads){
-            if(path[road->city2] == nullptr && road->city2 != &originCity){
-                path[road->city2] = current;
-                queue.push(road->city2);
+        for(auto Estrada : current->estradas){
+            if(path[Estrada->cidade2] == nullptr && Estrada->cidade2 != &originCidade){
+                path[Estrada->cidade2] = current;
+                queue.push(Estrada->cidade2);
             }
         }
     }
     //Construção do caminho
     std::stack<Node*> finalPath;
-    Node* current = &destinationCity;
+    Node* current = &destinationCidade;
     while(current != nullptr){
         finalPath.push(current);
         current = path[current];
@@ -149,40 +149,40 @@ int SomarDistancias(std::unordered_map<Node*,int> distances){
 
 void Graph::defineCapital(){
     int minDist = INF;
-    for (auto city : this->cities){
-        int dist = SomarDistancias(this->BFS(*city.second));
+    for (auto Cidade : this->cidades){
+        int dist = SomarDistancias(this->BFS(*Cidade.second));
         if (dist < minDist){
             minDist = dist;
-            this->capital = city.second;
+            this->capital = Cidade.second;
         }
     }
 }
 /*
 * Faz uma DFS a partir da cidade indicada, marcando as cidades visitadas e adicionando a pilha
-* @param city cidade de origem
+* @param Cidade cidade de origem
 * @param visited mapa de cidades visitadas
 * @param stack pilha de cidades visitadas que será usada no algoritmo de Kosaraju 
 */
-void Graph::DFS(Node* city, std::unordered_map<Node*, bool>* visited, std::stack<Node*>* stack) const{
+void Graph::DFS(Node* Cidade, std::unordered_map<Node*, bool>* visited, std::stack<Node*>* stack) const{
     //Marca a cidade como visitada, mas nao adiciona a pilha (semelhante a "pintar de cinza", como visto nas aulas)
-    visited->at(city) = true;
+    visited->at(Cidade) = true;
     //Para cada cidade vizinha, se ela nao foi visitada, chama a DFS recursivamente
-    for(auto road : city->roads){
-        if(visited->at(road->city2) == false){
-            DFS(road->city2, visited, stack);
+    for(auto Estrada : Cidade->estradas){
+        if(visited->at(Estrada->cidade2) == false){
+            DFS(Estrada->cidade2, visited, stack);
         }
     }
     //Adiciona a cidade a pilha (semelhante a "pintar de preto")
-    stack->push(city);
+    stack->push(Cidade);
 }
 
-void Graph::Kosaraju_DFS(Node* city, std::unordered_map<Node*, bool>* visited, std::unordered_set<std::string>* component) const{
-    visited->at(city) = true;
-    component->insert(city->City_name);
+void Graph::Kosaraju_DFS(Node* Cidade, std::unordered_map<Node*, bool>* visited, std::unordered_set<std::string>* component) const{
+    visited->at(Cidade) = true;
+    component->insert(Cidade->nome_Cidade);
 
-    for(auto road : city->roads){
-        if(visited->at(road->city2) == false){
-            Kosaraju_DFS(road->city2, visited, component);
+    for(auto Estrada : Cidade->estradas){
+        if(visited->at(Estrada->cidade2) == false){
+            Kosaraju_DFS(Estrada->cidade2, visited, component);
         }
     }
 }
@@ -192,30 +192,30 @@ void Graph::Kosaraju() {
     std::unordered_map<Node*, bool> visited;
     std::stack<Node*> stack;
 
-    for(auto city : this->cities){
-        visited.insert({city.second, false});
+    for(auto Cidade : this->cidades){
+        visited.insert({Cidade.second, false});
     }
     //Primeira etapa
-    for(auto city : this->cities){
-        if(visited.at(city.second) == false){
-            DFS(city.second, &visited, &stack);
+    for(auto Cidade : this->cidades){
+        if(visited.at(Cidade.second) == false){
+            DFS(Cidade.second, &visited, &stack);
         }
     }
     //Segunda etapa
     Graph transposedGraph;
-    for(auto city : this->cities){
-        transposedGraph.addCity(city.first);
-        for(auto road : city.second->roads){
-            transposedGraph.addRoad(road->city2->City_name, city.first);
+    for(auto Cidade : this->cidades){
+        transposedGraph.addCidade(Cidade.first);
+        for(auto Estrada : Cidade.second->estradas){
+            transposedGraph.addEstrada(Estrada->cidade2->nome_Cidade, Cidade.first);
         }
     }
     visited.clear();
     //Terceira etapa
-    for(auto city : transposedGraph.cities){
-        visited.insert({city.second, false});
+    for(auto Cidade : transposedGraph.cidades){
+        visited.insert({Cidade.second, false});
     }
     while(!stack.empty()){
-        Node* current = transposedGraph.cities[stack.top()->City_name];
+        Node* current = transposedGraph.cidades[stack.top()->nome_Cidade];
         stack.pop();
         if(!visited.at(current)){
             //percorre o grafo, adicionando as cidades ao componente(quer servirá como indice para criar o grafo desse componente isolado)
@@ -224,28 +224,28 @@ void Graph::Kosaraju() {
 
             //cria o grafo do componente isolado
             Graph* component = new Graph();
-            for(auto city : componentIndex){
-                component->copyCity(this->cities[city]);
+            for(auto Cidade : componentIndex){
+                component->copyCidade(this->cidades[Cidade]);
                 //somente adiciona as estradas que ligam cidades do componente
-                for(auto road : this->cities[city]->roads){
-                    if(componentIndex.find(road->city2->City_name) != componentIndex.end()){
-                        component->addRoad(city, road->city2->City_name);
+                for(auto Estrada : this->cidades[Cidade]->estradas){
+                    if(componentIndex.find(Estrada->cidade2->nome_Cidade) != componentIndex.end()){
+                        component->addEstrada(Cidade, Estrada->cidade2->nome_Cidade);
                     }
                 }
             }
-            if(size >= 1){
+            if(tamanho >= 1){
                 this->sccs.push_back(component);
             }
         }
     }
 }
 
-std::vector<Node*> MaisProximo(std::unordered_map<Node*, int> distances, std::unordered_map<std::string, Node*> cities){
+std::vector<Node*> MaisProximo(std::unordered_map<Node*, int> distances, std::unordered_map<std::string, Node*> cidades){
     std::vector<Node*> maisProximo;
     int minDist = INF;
     for(auto distance : distances){
         //garante que a cidade é uma cidade do batalhão
-        if(cities.find(distance.first->City_name) != cities.end()){
+        if(cidades.find(distance.first->nome_Cidade) != cidades.end()){
             //se a distancia for menor que a menor distancia encontrada até o momento, atualiza a menor distancia e reseta o vetor de cidades mais próximas
             if(distance.second < minDist){
                 minDist = distance.second;
@@ -269,33 +269,31 @@ void Graph::DefineBatalhoes() {
     std::unordered_map<Node*, int> distanciasCapital = this->BFS(*this->capital);
     for(auto batalhao : sccs){
         //define o batalhão como a cidade do scc mais próxima da capital
-        std::vector<Node*> capitalCandidates = MaisProximo(distanciasCapital, batalhao->cities);
+        std::vector<Node*> capitalCandidates = MaisProximo(distanciasCapital, batalhao->cidades);
         //se houver mais de uma cidade com a mesma distancia, desempata baseado na soma das distancias para o
         if(capitalCandidates.size() > 1){
             int minDist = INF;
-            for (auto city : capitalCandidates){
-                int dist = SomarDistancias(batalhao->BFS(*city));
+            for (auto Cidade : capitalCandidates){
+                int dist = SomarDistancias(batalhao->BFS(*Cidade));
                 if (dist < minDist){
                     minDist = dist;
-                    batalhao->SetCapital(city);
+                    batalhao->SetCapital(Cidade);
                 }
             }
         } else {
             batalhao->SetCapital(capitalCandidates[0]);
         }
-        batalhao->printGraph();
-        std::cout << "capital: " << batalhao->getCapital()->City_name << std::endl;
             
         //se o batalhão for a capital, não conta como batalhão
-        if(batalhao->getCapital()->City_name == this->capital->City_name){
+        if(batalhao->getCapital()->nome_Cidade == this->capital->nome_Cidade){
             n_batalhoes--;
         }
     }
     //impressão da resposta
     std::cout << n_batalhoes << std::endl;
     for(auto batalhao : sccs){
-        if(batalhao->getCapital()->City_name != this->capital->City_name){
-            std::cout << batalhao->getCapital()->City_name << std::endl;
+        if(batalhao->getCapital()->nome_Cidade != this->capital->nome_Cidade){
+            std::cout << batalhao->getCapital()->nome_Cidade << std::endl;
         }
     }
 }
@@ -304,7 +302,7 @@ void Graph::DefineBatalhoes() {
 int Graph::CountSCCs(){
     int count = 0;
     for(auto batalhao : this->sccs){
-        if(batalhao->size > 1){
+        if(batalhao->tamanho > 1){
             count++;
         }
     }
@@ -320,10 +318,10 @@ void Graph::Balancear(){
 
     // Encontra quais os nos desbalanceados O(v)
     std::vector<Node*> desbalanceados;
-    for(auto city : this->cities){
-        if(city.second->InDegree != city.second->OutDegree){
-            desbalanceados.push_back(city.second);
-            desbalanceadosID.insert({city.second, indice});
+    for(auto Cidade : this->cidades){
+        if(Cidade.second->InDegree != Cidade.second->OutDegree){
+            desbalanceados.push_back(Cidade.second);
+            desbalanceadosID.insert({Cidade.second, indice});
             indice++;
         }
     }
@@ -373,7 +371,7 @@ void Graph::Balancear(){
     //imprime os conjuntos
     for(auto conjunto : conjuntos){
         for(auto par : conjunto){
-            std::cout << std::get<0>(par)->City_name << " " << std::get<1>(par)->City_name << " " << std::get<2>(par) << std::endl;
+            std::cout << std::get<0>(par)->nome_Cidade << " " << std::get<1>(par)->nome_Cidade << " " << std::get<2>(par) << std::endl;
         }
         std::cout << std::endl;
     }
@@ -400,7 +398,7 @@ void Graph::Balancear(){
         while(!path.empty()){
             Node* next = path.top();
             path.pop();
-            this->addRoad(current->City_name, next->City_name);
+            this->addEstrada(current->nome_Cidade, next->nome_Cidade);
             current = next;
         }
     }
@@ -420,9 +418,9 @@ void Graph::PasseioDeEuler(Node* inicio){
     stack.push(inicio);
     while(!stack.empty()){
         Node* current = stack.top();
-        if(!current->roads.empty()){
-            Node* visited = current->roads.back()->city2;
-            current->roads.pop_back();
+        if(!current->estradas.empty()){
+            Node* visited = current->estradas.back()->cidade2;
+            current->estradas.pop_back();
             stack.push(visited);
         } else{
             eulerianPath.push_back(current);
@@ -431,8 +429,8 @@ void Graph::PasseioDeEuler(Node* inicio){
     }
     
     Reverse(eulerianPath);
-    for(auto city : eulerianPath){
-        std::cout << city->City_name << " ";
+    for(auto Cidade : eulerianPath){
+        std::cout << Cidade->nome_Cidade << " ";
     }
 }
 
@@ -440,11 +438,11 @@ void Graph::PasseioDeEuler(Node* inicio){
 void Graph::Patrulhamentos(){
     std::cout << this->CountSCCs() << std::endl;
     for(auto batalhao : this->sccs){
-        if(batalhao->size > 1){
-            std::unordered_map<Road*, bool> visited;
-            for(auto city : batalhao->cities){
-                for(auto road : city.second->roads){
-                    visited.insert({road, false});
+        if(batalhao->tamanho > 1){
+            std::unordered_map<Estrada*, bool> visited;
+            for(auto Cidade : batalhao->cidades){
+                for(auto Estrada : Cidade.second->estradas){
+                    visited.insert({Estrada, false});
                 }
             }
             batalhao->Balancear();
