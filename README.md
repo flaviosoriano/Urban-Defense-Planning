@@ -76,7 +76,6 @@ Run the compiled program with an input file:
 .
 ├── src/            # Source code files
 ├── include/        # Header files
-├── tests/          # Test case files
 ├── docs/           # Documentation and reports
 ├── Makefile        # Compilation script
 └── README.md       # Project overview
