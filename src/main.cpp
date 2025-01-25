@@ -4,10 +4,7 @@
 using namespace std;
 
 int main(){
-
-    //apenas para depuração
-    //freopen("inputs/testCase05.txt", "r", stdin);
-
+    
     int nCidades = 0 , nEstradas = 0;
     cin >> nCidades; 
     cin >> nEstradas;
@@ -24,9 +21,12 @@ int main(){
         cout << "erro" << endl;
         return 0;
     }
+    //resolve o problema 1
     state.defineCapital();
     cout << state.getCapital()->nome_Cidade << endl;
+    //resolve o problema 2
     state.DefineBatalhoes();
+    //resolve o problema 3
     state.Patrulhamentos();
     return 0;
 }

@@ -38,6 +38,7 @@ void Graph::addCidade(std::string Cidade){
     }
 }
 
+//Função que copia uma cidade para de um grafo para o outro
 void Graph::copyCidade(Node* Cidade){
     if (this->cidades.find(Cidade->nome_Cidade) == this->cidades.end()){
         this->cidades[Cidade->nome_Cidade] = new Node(Cidade);
@@ -72,6 +73,7 @@ void Graph::printGraph() const{
     }
 }
 
+//Função que retorna as distancias de um grafo a partir de uma cidade
 std::unordered_map<Node*,int> Graph::BFS(Node& originCidade) const{
 
     std::unordered_map<Node*,int> distances;
@@ -98,6 +100,7 @@ std::unordered_map<Node*,int> Graph::BFS(Node& originCidade) const{
     return distances;
 }
 
+//Função que retorna o caminho entre duas cidades
 std::stack<Node*> Graph::BFSPath(Node& originCidade, Node& destinationCidade) const{
 
     //Cidade atual - cidade anterior
@@ -134,7 +137,7 @@ std::stack<Node*> Graph::BFSPath(Node& originCidade, Node& destinationCidade) co
     }
     return finalPath;
 }
-
+//Função que soma as distancias de um grafo e retorna INF caso haja uma cidade inalcançável
 int SomarDistancias(std::unordered_map<Node*,int> distances){
     int totalDistance = 0;
     for(auto distance : distances){
@@ -146,7 +149,7 @@ int SomarDistancias(std::unordered_map<Node*,int> distances){
 
     return totalDistance;
 }
-
+//Define a capital do grafo como a cidade que tem a menor soma das distancias para todas as outras cidades
 void Graph::defineCapital(){
     int minDist = INF;
     for (auto Cidade : this->cidades){
@@ -157,12 +160,8 @@ void Graph::defineCapital(){
         }
     }
 }
-/*
-* Faz uma DFS a partir da cidade indicada, marcando as cidades visitadas e adicionando a pilha
-* @param Cidade cidade de origem
-* @param visited mapa de cidades visitadas
-* @param stack pilha de cidades visitadas que será usada no algoritmo de Kosaraju 
-*/
+
+//Faz uma DFS a partir da cidade indicada, marcando as cidades visitadas e adicionando a pilha
 void Graph::DFS(Node* Cidade, std::unordered_map<Node*, bool>* visited, std::stack<Node*>* stack) const{
     //Marca a cidade como visitada, mas nao adiciona a pilha (semelhante a "pintar de cinza", como visto nas aulas)
     visited->at(Cidade) = true;
@@ -187,6 +186,7 @@ void Graph::Kosaraju_DFS(Node* Cidade, std::unordered_map<Node*, bool>* visited,
     }
 }
 
+//Algoritmo de Kosaraju
 void Graph::Kosaraju() {
 
     std::unordered_map<Node*, bool> visited;
@@ -240,6 +240,7 @@ void Graph::Kosaraju() {
     }
 }
 
+//Função que retorna as cidades mais próximas da capital
 std::vector<Node*> MaisProximo(std::unordered_map<Node*, int> distances, std::unordered_map<std::string, Node*> cidades){
     std::vector<Node*> maisProximo;
     int minDist = INF;
@@ -260,7 +261,7 @@ std::vector<Node*> MaisProximo(std::unordered_map<Node*, int> distances, std::un
     return maisProximo;
 }
 
-
+// Função que define os batalhões e suas respectivas capitais para o problema 2
 void Graph::DefineBatalhoes() {
 
     this->Kosaraju();
@@ -309,7 +310,7 @@ int Graph::CountSCCs(){
     return count;
 }
 
-
+// Função que balanceia o grafo de um batalhão para ser possível fazer o passeio de euler
 void Graph::Balancear(){
     //será utilizado depois, mas ja inicializo agora para aproveitar o loop
     //assinala aos nós um indice inteiro
@@ -404,6 +405,7 @@ void Graph::Balancear(){
     }
 }
 
+//Utilizado para inverter o vetor de cidades, pois o passeio de euler é feito em ordem inversa
 void Reverse(std::vector<Node*> &vector){
     std::vector<Node*> reversed;
     for(auto it = vector.rbegin(); it != vector.rend(); it++){
@@ -411,6 +413,8 @@ void Reverse(std::vector<Node*> &vector){
     }
     vector = reversed;
 }
+
+//Algoritmo de Hieholzer
 void Graph::PasseioDeEuler(Node* inicio){
     std::vector<Node*> eulerianPath;
     std::stack<Node*> stack;
@@ -418,23 +422,26 @@ void Graph::PasseioDeEuler(Node* inicio){
     stack.push(inicio);
     while(!stack.empty()){
         Node* current = stack.top();
+        std::cout << "cidade atual: " << current->nome_Cidade << std::endl;
         if(!current->estradas.empty()){
             Node* visited = current->estradas.back()->cidade2;
             current->estradas.pop_back();
             stack.push(visited);
         } else{
+            std::cout << current->nome_Cidade << " adicionada" <<std::endl;
             eulerianPath.push_back(current);
             stack.pop();
         }
+
     }
-    
+    std::cout << std::endl;
     Reverse(eulerianPath);
     for(auto Cidade : eulerianPath){
         std::cout << Cidade->nome_Cidade << " ";
     }
 }
 
-
+//Função principal que chama todas as outras funções para resolver o problema 3
 void Graph::Patrulhamentos(){
     std::cout << this->CountSCCs() << std::endl;
     for(auto batalhao : this->sccs){
@@ -446,6 +453,7 @@ void Graph::Patrulhamentos(){
                 }
             }
             batalhao->Balancear();
+            batalhao->printGraph();
             batalhao->PasseioDeEuler(batalhao->getCapital());
             std::cout << std::endl;
         }
